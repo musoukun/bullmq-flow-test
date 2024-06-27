@@ -125,21 +125,7 @@ function App() {
 		async (nodeId: string) => {
 			const node = nodes.find((n) => n.id === nodeId);
 			if (node) {
-				setNodes((prevNodes) =>
-					prevNodes.map((n) =>
-						n.id === nodeId
-							? {
-									...n,
-									data: {
-										...n.data,
-										isExecuting: true,
-										status: null,
-										error: null,
-									},
-								}
-							: n
-					)
-				);
+				setIsExecuting(true);
 				try {
 					const result = await executeNode(node as any);
 					console.log("Node executed successfully:", result);
@@ -150,7 +136,12 @@ function App() {
 										...n,
 										data: {
 											...n.data,
-											result,
+											response: {
+												status: result.status,
+												statusText: result.statusText,
+												data: result.data,
+												headers: result.headers,
+											},
 											status: "success",
 											isExecuting: false,
 											error: null,

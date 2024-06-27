@@ -1,4 +1,3 @@
-// NodeConfigForm.tsx
 import React, { useState } from "react";
 import { CustomNodeData } from "../types/types";
 
@@ -9,31 +8,17 @@ interface NodeConfigFormProps {
 
 const NodeConfigForm: React.FC<NodeConfigFormProps> = ({ data, onSave }) => {
 	const [formData, setFormData] = useState(data);
-	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
-		setErrors((prev) => ({ ...prev, [name]: "" }));
-	};
-
-	const validateForm = () => {
-		const newErrors: Record<string, string> = {};
-		if (!formData.label) newErrors.label = "Label is required";
-		if ((data.type === "get" || data.type === "post") && !formData.url) {
-			newErrors.url = "URL is required";
-		}
-		setErrors(newErrors);
-		return Object.keys(newErrors).length === 0;
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (validateForm()) {
-			onSave(formData);
-		}
+		onSave(formData);
 	};
 
 	return (
@@ -51,13 +36,8 @@ const NodeConfigForm: React.FC<NodeConfigFormProps> = ({ data, onSave }) => {
 					id="label"
 					value={formData.label}
 					onChange={handleChange}
-					className={`mt-1 block w-full border ${
-						errors.label ? "border-red-500" : "border-gray-300"
-					} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+					className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 				/>
-				{errors.label && (
-					<p className="mt-1 text-sm text-red-500">{errors.label}</p>
-				)}
 			</div>
 			{(data.type === "get" || data.type === "post") && (
 				<>
@@ -82,7 +62,7 @@ const NodeConfigForm: React.FC<NodeConfigFormProps> = ({ data, onSave }) => {
 							htmlFor="headers"
 							className="block text-sm font-medium text-gray-700"
 						>
-							Headers
+							Headers (JSON)
 						</label>
 						<textarea
 							name="headers"
@@ -97,23 +77,50 @@ const NodeConfigForm: React.FC<NodeConfigFormProps> = ({ data, onSave }) => {
 							className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 						/>
 					</div>
-					<div>
-						<label
-							htmlFor="body"
-							className="block text-sm font-medium text-gray-700"
-						>
-							Body
-						</label>
-						<textarea
-							name="body"
-							id="body"
-							value={formData.body || ""}
-							onChange={handleChange}
-							rows={3}
-							className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-						/>
-					</div>
+					{data.type === "post" && (
+						<div>
+							<label
+								htmlFor="body"
+								className="block text-sm font-medium text-gray-700"
+							>
+								Body (JSON)
+							</label>
+							<textarea
+								name="body"
+								id="body"
+								value={formData.body || ""}
+								onChange={handleChange}
+								rows={3}
+								className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+							/>
+						</div>
+					)}
 				</>
+			)}
+			{formData.response && (
+				<div>
+					<h3 className="text-lg font-medium text-gray-900">
+						Response
+					</h3>
+					<div className="mt-2 bg-gray-50 p-4 rounded-md">
+						<p>
+							<strong>Status:</strong> {formData.response.status}{" "}
+							{formData.response.statusText}
+						</p>
+						<p>
+							<strong>Headers:</strong>
+						</p>
+						<pre className="mt-1 text-sm">
+							{JSON.stringify(formData.response.headers, null, 2)}
+						</pre>
+						<p>
+							<strong>Data:</strong>
+						</p>
+						<pre className="mt-1 text-sm">
+							{JSON.stringify(formData.response.data, null, 2)}
+						</pre>
+					</div>
+				</div>
 			)}
 			<div>
 				<button

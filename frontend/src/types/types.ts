@@ -16,6 +16,12 @@ export interface CustomNodeData {
 	url?: string;
 	headers?: Record<string, string>;
 	body?: string;
+	response?: {
+		status: number;
+		statusText: string;
+		data: any;
+		headers: any;
+	};
 }
 
 export type CustomNode = Node<CustomNodeData>;
