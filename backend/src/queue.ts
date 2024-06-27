@@ -55,7 +55,7 @@ export async function processNode(node: any) {
 		case "get":
 			try {
 				const response = await axios.get(node.data.url, {
-					headers: node.data.headers,
+					headers: JSON.parse(node.data.headers || "{}"),
 				});
 				return {
 					status: response.status,
@@ -74,9 +74,9 @@ export async function processNode(node: any) {
 			try {
 				const response = await axios.post(
 					node.data.url,
-					node.data.body,
+					JSON.parse(node.data.body || "{}"),
 					{
-						headers: node.data.headers,
+						headers: JSON.parse(node.data.headers || "{}"),
 					}
 				);
 				return {
