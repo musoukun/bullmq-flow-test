@@ -14,14 +14,14 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import InjectNode from "./InjectNode";
-import GetNode from "./GetNode";
-import PostNode from "./PostNode";
-import CustomEdge from "./CustomEdge";
+import InjectNode from "../InjectNode";
+import GetNode from "../GetNode";
+import PostNode from "../PostNode";
+import CustomEdge from "../CustomEdge";
 import Modal from "./Modal";
 import NodeConfigForm from "./NodeConfigForm";
-import { CustomNode } from "../types/types";
-import { executeNode } from "../api/WorkflowApi";
+import { CustomNode } from "../../types/types";
+import { executeNode } from "../../api/WorkflowApi";
 import NodeMenu from "./NodeMenu";
 // import Sidebar from "./Sidebar";
 import { useParams } from "react-router-dom";

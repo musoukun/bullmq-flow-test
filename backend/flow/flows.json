@@ -45,7 +45,7 @@
       },
       "width": 145,
       "height": 80,
-      "selected": false,
+      "selected": true,
       "positionAbsolute": {
         "x": 62.501953125,
         "y": -93.2265625
@@ -92,7 +92,7 @@
       },
       "width": 145,
       "height": 80,
-      "selected": true,
+      "selected": false,
       "dragging": false
     },
     {

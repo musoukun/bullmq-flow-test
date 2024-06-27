@@ -2,7 +2,7 @@ import React from "react";
 import Sidebar from "./components/Sidebar";
 import Home from "./components/Home";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import FlowEditor from "./components/FlowEditor";
+import FlowEditor from "./components/flowEditor/FlowEditor";
 
 const App: React.FC = () => {
 	return (

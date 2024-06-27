@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CustomNodeData } from "../types/types";
+import { CustomNodeData } from "../../types/types";
 
 interface NodeConfigFormProps {
 	data: CustomNodeData;

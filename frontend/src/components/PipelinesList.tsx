@@ -48,7 +48,7 @@ const PipelinesList: React.FC = () => {
 							<i className="fas fa-user-circle text-2xl text-gray-800"></i>
 						</td>
 						<td className="px-6 py-4 whitespace-nowrap">
-							<div> Merge branch 'nicolasdu... </div>
+							<div> フロー処理のサンプル1 </div>
 							<div className="text-xs text-gray-500">
 								⌁31649 - dacc7ea3
 							</div>
@@ -81,7 +81,7 @@ const PipelinesList: React.FC = () => {
 							<i className="fas fa-user-circle text-2xl text-gray-800"></i>
 						</td>
 						<td className="px-6 py-4 whitespace-nowrap">
-							<div> Merge branch '12-10-sta... </div>
+							<div> フロー処理のサンプル2 </div>
 							<div className="text-xs text-gray-500">
 								⌁32306 - 9a5d2aa1
 							</div>
@@ -111,7 +111,7 @@ const PipelinesList: React.FC = () => {
 							<i className="fas fa-user-circle text-2xl text-gray-800"></i>
 						</td>
 						<td className="px-6 py-4 whitespace-nowrap">
-							<div> Merge branch '210018-re... </div>
+							<div> フロー処理のサンプル３ </div>
 							<div className="text-xs text-gray-500">
 								⌁31801 - 42738af2
 							</div>
@@ -141,7 +141,7 @@ const PipelinesList: React.FC = () => {
 							<i className="fas fa-user-circle text-2xl text-gray-800"></i>
 						</td>
 						<td className="px-6 py-4 whitespace-nowrap">
-							<div> Merge branch '22691-ext... </div>
+							<div> フロー処理のサンプル4... </div>
 							<div className="text-xs text-gray-500">
 								⌁master - d635c709
 							</div>
