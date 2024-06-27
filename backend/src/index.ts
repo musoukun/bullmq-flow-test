@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { workflowQueue, initializeWorker } from "./queue";
+import { workflowQueue, initializeWorker, processNode } from "./queue";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -31,7 +31,7 @@ app.get("/job-status/:jobId", async (req, res) => {
 			return res.status(404).json({ error: "Job not found" });
 		}
 		const state = await job.getState();
-		const progress = await job.progress();
+		const progress = await (job.progress as () => Promise<number>)();
 		res.json({ jobId: job.id, state, progress });
 	} catch (error) {
 		console.error("Error fetching job status:", error);

@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import ReactFlow, {
 	Edge,
 	Connection,
@@ -7,11 +8,10 @@ import ReactFlow, {
 	Background,
 	NodeTypes,
 	EdgeTypes,
-	OnNodesChange,
-	OnEdgesChange,
 	OnConnect,
-	applyNodeChanges,
-	applyEdgeChanges,
+	ReactFlowProvider,
+	useNodesState,
+	useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -23,6 +23,7 @@ import Modal from "./components/Modal";
 import NodeConfigForm from "./components/NodeConfigForm";
 import { CustomNode } from "./types/types";
 import { executeNode } from "./api/WorkflowApi.ts";
+import Sidebar from "./components/Sidebar";
 
 const nodeTypes: NodeTypes = {
 	inject: InjectNode,
@@ -73,8 +74,12 @@ const initialNodes: CustomNode[] = [
 const initialEdges: Edge[] = [];
 
 function App() {
-	const [nodes, setNodes] = useState<CustomNode[]>(initialNodes);
-	const [edges, setEdges] = useState<Edge[]>(initialEdges);
+	const reactFlowWrapper = useRef<HTMLDivElement>(null);
+	const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(
+		initialNodes as any
+	);
+	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
+	const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [isExecuting, setIsExecuting] = useState(false);
 	const [selectedNode, setSelectedNode] = useState<CustomNode | null>(null);
@@ -89,16 +94,6 @@ function App() {
 			document.documentElement.classList.remove("dark");
 		}
 	}, [darkMode]);
-
-	const onNodesChange: OnNodesChange = useCallback(
-		(changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-		[]
-	);
-
-	const onEdgesChange: OnEdgesChange = useCallback(
-		(changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-		[]
-	);
 
 	const onConnect: OnConnect = useCallback(
 		(params: Connection) => {
@@ -146,7 +141,7 @@ function App() {
 					)
 				);
 				try {
-					const result = await executeNode(node);
+					const result = await executeNode(node as any);
 					console.log("Node executed successfully:", result);
 					setNodes((prevNodes) =>
 						prevNodes.map((n) =>
@@ -188,14 +183,14 @@ function App() {
 				}
 			}
 		},
-		[nodes]
+		[nodes, setNodes]
 	);
 
 	const onNodeConfigure = useCallback(
 		(nodeId: string) => {
 			const node = nodes.find((n) => n.id === nodeId);
 			if (node) {
-				setSelectedNode(node);
+				setSelectedNode(node as any);
 			}
 		},
 		[nodes]
@@ -217,20 +212,51 @@ function App() {
 		[selectedNode]
 	);
 
-	const addNode = (type: "inject" | "get" | "post") => {
-		const newNode: CustomNode = {
-			id: (nodes.length + 1).toString(),
-			type,
-			position: { x: Math.random() * 300, y: Math.random() * 300 },
-			data: {
-				label: type.charAt(0).toUpperCase() + type.slice(1),
-				id: (nodes.length + 1).toString(),
-				name: `${type.charAt(0).toUpperCase() + type.slice(1)} Node`,
-				type: type,
-			},
-		};
-		setNodes((nds) => [...nds, newNode]);
+	const onDragStart = (event: React.DragEvent, nodeType: string) => {
+		event.dataTransfer.setData("application/reactflow", nodeType);
+		event.dataTransfer.effectAllowed = "move";
 	};
+
+	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = "move";
+	}, []);
+
+	const onDrop = useCallback(
+		(event: React.DragEvent<HTMLDivElement>) => {
+			event.preventDefault();
+
+			if (!reactFlowWrapper.current || !reactFlowInstance) return;
+
+			const reactFlowBounds =
+				reactFlowWrapper.current.getBoundingClientRect();
+			const type = event.dataTransfer.getData("application/reactflow");
+
+			// check if the dropped element is valid
+			if (typeof type === "undefined" || !type) {
+				return;
+			}
+
+			const position = reactFlowInstance.project({
+				x: event.clientX - reactFlowBounds.left,
+				y: event.clientY - reactFlowBounds.top,
+			});
+			const newNode: CustomNode = {
+				id: (nodes.length + 1).toString(),
+				type,
+				position,
+				data: {
+					label: type.charAt(0).toUpperCase() + type.slice(1),
+					id: (nodes.length + 1).toString(),
+					name: `${type.charAt(0).toUpperCase() + type.slice(1)} Node`,
+					type: type as "inject" | "get" | "post",
+				},
+			};
+
+			setNodes((nds) => nds.concat(newNode as any));
+		},
+		[reactFlowInstance, nodes]
+	);
 
 	const checkWorkflowProgress = useCallback(async (jobId: string) => {
 		try {
@@ -272,40 +298,26 @@ function App() {
 				</button>
 			</header>
 			<div className="flex-1 flex flex-col md:flex-row">
-				<aside className="w-full md:w-64 bg-gray-100 dark:bg-gray-800 p-4 flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2">
-					<button
-						className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-300"
-						onClick={() => addNode("inject")}
-					>
-						Add Inject Node
-					</button>
-					<button
-						className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-300"
-						onClick={() => addNode("get")}
-					>
-						Add GET Node
-					</button>
-					<button
-						className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors duration-300"
-						onClick={() => addNode("post")}
-					>
-						Add POST Node
-					</button>
-				</aside>
-				<main className="flex-1 relative">
-					<ReactFlow
-						nodes={updatedNodes}
-						edges={edges}
-						onNodesChange={onNodesChange}
-						onEdgesChange={onEdgesChange}
-						onConnect={onConnect}
-						nodeTypes={nodeTypes}
-						edgeTypes={edgeTypes}
-						fitView
-					>
-						<Background />
-					</ReactFlow>
-				</main>
+				<Sidebar onDragStart={onDragStart} />
+				<ReactFlowProvider>
+					<div className="flex-1 h-full" ref={reactFlowWrapper}>
+						<ReactFlow
+							nodes={updatedNodes}
+							edges={edges}
+							onNodesChange={onNodesChange}
+							onEdgesChange={onEdgesChange}
+							onConnect={onConnect}
+							nodeTypes={nodeTypes}
+							edgeTypes={edgeTypes}
+							onInit={setReactFlowInstance}
+							onDrop={onDrop}
+							onDragOver={onDragOver}
+							fitView
+						>
+							<Background />
+						</ReactFlow>
+					</div>
+				</ReactFlowProvider>
 			</div>
 			{error && (
 				<div className="absolute bottom-4 right-4 z-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">

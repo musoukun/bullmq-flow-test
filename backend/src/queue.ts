@@ -23,7 +23,7 @@ export const initializeWorker = () => {
 						result,
 					});
 					await job.updateProgress(results);
-				} catch (error) {
+				} catch (error: any) {
 					results.push({
 						nodeId: node.id,
 						status: "failed",
@@ -42,24 +42,56 @@ export const initializeWorker = () => {
 		console.log(`Job ${job.id} has completed.`);
 	});
 
-	worker.on("failed", (job, err) => {
+	worker.on("failed", (job: any, err) => {
 		console.error(`Job ${job.id} has failed with ${err.message}`);
 	});
 };
 
-async function processNode(node: any) {
+export async function processNode(node: any) {
 	console.log(`Processing node: ${node.id}`);
 	switch (node.type) {
 		case "inject":
 			return { message: "Workflow started" };
 		case "get":
-			return await axios.get(node.data.url, {
-				headers: node.data.headers,
-			});
+			try {
+				const response = await axios.get(node.data.url, {
+					headers: node.data.headers,
+				});
+				return {
+					status: response.status,
+					statusText: response.statusText,
+					data: response.data,
+					headers: response.headers,
+				};
+			} catch (error) {
+				if (axios.isAxiosError(error)) {
+					throw new Error(`GET request failed: ${error.message}`);
+				} else {
+					throw error;
+				}
+			}
 		case "post":
-			return await axios.post(node.data.url, node.data.body, {
-				headers: node.data.headers,
-			});
+			try {
+				const response = await axios.post(
+					node.data.url,
+					node.data.body,
+					{
+						headers: node.data.headers,
+					}
+				);
+				return {
+					status: response.status,
+					statusText: response.statusText,
+					data: response.data,
+					headers: response.headers,
+				};
+			} catch (error) {
+				if (axios.isAxiosError(error)) {
+					throw new Error(`POST request failed: ${error.message}`);
+				} else {
+					throw error;
+				}
+			}
 		default:
 			throw new Error(`Unknown node type: ${node.type}`);
 	}
