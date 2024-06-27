@@ -5,60 +5,195 @@
       "id": "1",
       "type": "inject",
       "position": {
-        "x": 0,
-        "y": 0
+        "x": -229.498046875,
+        "y": -60.2265625
       },
       "data": {
         "label": "Inject",
         "id": "1",
         "name": "Inject Node",
-        "type": "inject"
+        "type": "inject",
+        "response": {},
+        "status": "success",
+        "isExecuting": false,
+        "error": null
       },
       "width": 171,
-      "height": 80
+      "height": 80,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -229.498046875,
+        "y": -60.2265625
+      },
+      "dragging": false
     },
     {
       "id": "2",
       "type": "get",
       "position": {
-        "x": 200.5,
-        "y": 0
+        "x": 62.501953125,
+        "y": -93.2265625
       },
       "data": {
-        "label": "GET",
+        "label": "Get",
         "id": "2",
-        "name": "GET Node",
+        "name": "Get Node",
         "type": "get",
         "status": "error",
         "isExecuting": false,
-        "error": "Request failed with status code 500",
-        "url": "https://github.com/musoukun/bullmq-flow-test/tree/main/backend"
+        "error": "Request failed with status code 500"
       },
       "width": 145,
       "height": 80,
-      "selected": true,
-      "dragging": false,
+      "selected": false,
       "positionAbsolute": {
-        "x": 200.5,
-        "y": 0
-      }
+        "x": 62.501953125,
+        "y": -93.2265625
+      },
+      "dragging": false
     },
     {
       "id": "3",
       "type": "post",
       "position": {
-        "x": 400,
-        "y": 0
+        "x": 320.001953125,
+        "y": -104.7265625
       },
       "data": {
-        "label": "POST",
+        "label": "Post",
         "id": "3",
-        "name": "POST Node",
+        "name": "Post Node",
+        "type": "post"
+      },
+      "width": 155,
+      "height": 80,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 320.001953125,
+        "y": -104.7265625
+      },
+      "dragging": false
+    },
+    {
+      "id": "4",
+      "type": "get",
+      "position": {
+        "x": -123.498046875,
+        "y": -165.2265625
+      },
+      "data": {
+        "label": "Get",
+        "id": "4",
+        "name": "Get Node",
+        "type": "get",
+        "status": "error",
+        "isExecuting": false,
+        "error": "Request failed with status code 500"
+      },
+      "width": 145,
+      "height": 80,
+      "selected": true,
+      "dragging": false
+    },
+    {
+      "id": "5",
+      "type": "post",
+      "position": {
+        "x": -53.498046875,
+        "y": 26.2734375
+      },
+      "data": {
+        "label": "Post",
+        "id": "5",
+        "name": "Post Node",
         "type": "post"
       },
       "width": 155,
       "height": 80
+    },
+    {
+      "id": "6",
+      "type": "post",
+      "position": {
+        "x": 191.001953125,
+        "y": 43.2734375
+      },
+      "data": {
+        "label": "Post",
+        "id": "6",
+        "name": "Post Node",
+        "type": "post"
+      },
+      "width": 155,
+      "height": 80
+    },
+    {
+      "id": "7",
+      "type": "get",
+      "position": {
+        "x": 226.001953125,
+        "y": -175.2265625
+      },
+      "data": {
+        "label": "Get",
+        "id": "7",
+        "name": "Get Node",
+        "type": "get"
+      },
+      "width": 145,
+      "height": 80
+    },
+    {
+      "id": "8",
+      "type": "inject",
+      "position": {
+        "x": -22.498046875,
+        "y": 141.7734375
+      },
+      "data": {
+        "label": "Inject",
+        "id": "8",
+        "name": "Inject Node",
+        "type": "inject",
+        "response": {},
+        "status": "success",
+        "isExecuting": false,
+        "error": null
+      },
+      "width": 171,
+      "height": 80,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -22.498046875,
+        "y": 141.7734375
+      },
+      "dragging": false
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "source": "1",
+      "sourceHandle": null,
+      "target": "2",
+      "targetHandle": null,
+      "type": "custom",
+      "id": "reactflow__edge-1-2"
+    },
+    {
+      "source": "2",
+      "sourceHandle": null,
+      "target": "3",
+      "targetHandle": null,
+      "type": "custom",
+      "id": "reactflow__edge-2-3"
+    },
+    {
+      "source": "1",
+      "sourceHandle": null,
+      "target": "5",
+      "targetHandle": null,
+      "type": "custom",
+      "id": "reactflow__edge-1-5"
+    }
+  ]
 }

@@ -1,46 +1,45 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaHome, FaBars, FaCode } from "react-icons/fa";
 
-type SidebarProps = {
-	onDragStart: (
-		event: React.DragEvent<HTMLDivElement>,
-		nodeType: string
-	) => void;
-};
+const Sidebar: React.FC = () => {
+	const [isExpanded, setIsExpanded] = useState(true);
+	const navigate = useNavigate();
 
-const Sidebar = ({ onDragStart }: SidebarProps) => {
-	const onDragStartHandler = (
-		event: React.DragEvent<HTMLDivElement>,
-		nodeType: string
-	) => {
-		event.dataTransfer.setData("application/reactflow", nodeType);
-		event.dataTransfer.effectAllowed = "move";
+	const toggleExpand = () => {
+		setIsExpanded(!isExpanded);
 	};
 
 	return (
-		<aside className="w-64 bg-gray-100 p-4 flex flex-col space-y-2">
-			<div
-				className="bg-blue-500 text-white px-4 py-2 rounded cursor-move"
-				onDragStart={(event) => onDragStartHandler(event, "inject")}
-				draggable
-			>
-				Inject Node
+		<div
+			className={`bg-gray-800 text-white h-full transition-all duration-300 ease-in-out ${isExpanded ? "w-64" : "w-16"}`}
+		>
+			<div className="flex justify-between items-center p-4 border-b border-gray-700">
+				{isExpanded && (
+					<div className="text-2xl font-bold">WF Builder</div>
+				)}
+				<button
+					onClick={toggleExpand}
+					className="text-white focus:outline-none p-2 hover:bg-gray-700 rounded"
+				>
+					<FaBars size={20} />
+				</button>
 			</div>
 			<div
-				className="bg-green-500 text-white px-4 py-2 rounded cursor-move"
-				onDragStart={(event) => onDragStartHandler(event, "get")}
-				draggable
+				className="p-4 flex items-center hover:bg-gray-700 cursor-pointer"
+				onClick={() => navigate("/")}
 			>
-				GET Node
+				<FaHome size={20} />
+				{isExpanded && <span className="ml-3">ダッシュボード</span>}
 			</div>
 			<div
-				className="bg-red-500 text-white px-4 py-2 rounded cursor-move"
-				onDragStart={(event) => onDragStartHandler(event, "post")}
-				draggable
+				className="p-4 flex items-center hover:bg-gray-700 cursor-pointer"
+				onClick={() => navigate("/flow-editor")}
 			>
-				POST Node
+				<FaCode size={20} />
+				{isExpanded && <span className="ml-3">ワークフロー</span>}
 			</div>
-		</aside>
+		</div>
 	);
 };
 
