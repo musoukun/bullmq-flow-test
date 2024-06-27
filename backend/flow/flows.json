@@ -1,0 +1,64 @@
+{
+  "id": "default",
+  "nodes": [
+    {
+      "id": "1",
+      "type": "inject",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "label": "Inject",
+        "id": "1",
+        "name": "Inject Node",
+        "type": "inject"
+      },
+      "width": 171,
+      "height": 80
+    },
+    {
+      "id": "2",
+      "type": "get",
+      "position": {
+        "x": 200.5,
+        "y": 0
+      },
+      "data": {
+        "label": "GET",
+        "id": "2",
+        "name": "GET Node",
+        "type": "get",
+        "status": "error",
+        "isExecuting": false,
+        "error": "Request failed with status code 500",
+        "url": "https://github.com/musoukun/bullmq-flow-test/tree/main/backend"
+      },
+      "width": 145,
+      "height": 80,
+      "selected": true,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 200.5,
+        "y": 0
+      }
+    },
+    {
+      "id": "3",
+      "type": "post",
+      "position": {
+        "x": 400,
+        "y": 0
+      },
+      "data": {
+        "label": "POST",
+        "id": "3",
+        "name": "POST Node",
+        "type": "post"
+      },
+      "width": 155,
+      "height": 80
+    }
+  ],
+  "edges": []
+}

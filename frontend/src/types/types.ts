@@ -2,19 +2,12 @@
 import { Node } from "reactflow";
 
 export interface CustomNodeData {
-	onConfigure?: () => void; // オプショナルに変更
 	label: string;
 	id: string;
 	name: string;
 	type: "inject" | "get" | "post";
-	onExecute?: (id: string) => void;
-	onSettings?: () => void;
-	status?: "success" | "error" | null;
-	isExecuting?: boolean;
-	result?: any;
-	error?: string | null;
 	url?: string;
-	headers?: Record<string, string>;
+	headers?: string;
 	body?: string;
 	response?: {
 		status: number;
@@ -22,6 +15,11 @@ export interface CustomNodeData {
 		data: any;
 		headers: any;
 	};
+	onExecute?: (id: string) => void;
+	onConfigure?: () => void;
+	isExecuting?: boolean;
+	status?: "success" | "error" | null;
+	error?: string | null;
 }
 
 export type CustomNode = Node<CustomNodeData>;

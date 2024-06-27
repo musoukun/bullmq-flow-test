@@ -13,8 +13,16 @@ export const initializeWorker = () => {
 			console.log("Processing job:", job.id);
 			const { nodes, edges } = job.data;
 
-			const results = [];
-			for (const node of nodes) {
+			const results: Array<object> = [];
+			const processedNodes = new Set();
+
+			const processNodeAndChildren = async (nodeId: string) => {
+				if (processedNodes.has(nodeId)) return;
+				processedNodes.add(nodeId);
+
+				const node = nodes.find((n: { id: string }) => n.id === nodeId);
+				if (!node) return;
+
 				try {
 					const result = await processNode(node);
 					results.push({
@@ -23,6 +31,14 @@ export const initializeWorker = () => {
 						result,
 					});
 					await job.updateProgress(results);
+
+					// Find and process child nodes
+					const childEdges = edges.filter(
+						(e: { source: string }) => e.source === nodeId
+					);
+					for (const edge of childEdges) {
+						await processNodeAndChildren(edge.target);
+					}
 				} catch (error: any) {
 					results.push({
 						nodeId: node.id,
@@ -31,6 +47,14 @@ export const initializeWorker = () => {
 					});
 					await job.updateProgress(results);
 				}
+			};
+
+			// Start processing from Inject nodes
+			const injectNodes = nodes.filter(
+				(n: { type: string }) => n.type === "inject"
+			);
+			for (const injectNode of injectNodes) {
+				await processNodeAndChildren(injectNode.id);
 			}
 
 			return results;
@@ -42,7 +66,7 @@ export const initializeWorker = () => {
 		console.log(`Job ${job.id} has completed.`);
 	});
 
-	worker.on("failed", (job: any, err) => {
+	worker.on("failed", (job: any, err: Error) => {
 		console.error(`Job ${job.id} has failed with ${err.message}`);
 	});
 };

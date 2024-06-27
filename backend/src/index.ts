@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { workflowQueue, initializeWorker, processNode } from "./queue";
+import fs from "fs/promises";
+import path from "path";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -8,7 +10,27 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+const flowsFilePath = path.join(__dirname, "../flow/flows.json");
+
 initializeWorker();
+
+// フローファイルが存在しない場合に初期化する関数
+async function initializeFlowFile() {
+	try {
+		await fs.access(flowsFilePath);
+	} catch (error) {
+		const initialFlow = {
+			id: "default",
+			nodes: [],
+			edges: [],
+		};
+		await fs.writeFile(flowsFilePath, JSON.stringify(initialFlow, null, 2));
+		console.log("Initialized flows.json file");
+	}
+}
+
+// サーバー起動時にフローファイルを初期化
+initializeFlowFile();
 
 app.post("/execute", async (req, res) => {
 	try {
@@ -47,6 +69,29 @@ app.post("/execute-node", async (req, res) => {
 	} catch (error) {
 		console.error("Error executing node:", error);
 		res.status(500).json({ error: "Failed to execute node" });
+	}
+});
+
+// フローを保存するエンドポイント
+app.post("/save-flow", async (req, res) => {
+	try {
+		const flowData = req.body;
+		await fs.writeFile(flowsFilePath, JSON.stringify(flowData, null, 2));
+		res.json({ message: "Flow saved successfully" });
+	} catch (error) {
+		console.error("Error saving flow:", error);
+		res.status(500).json({ error: "Failed to save flow" });
+	}
+});
+
+// フローを取得するエンドポイント
+app.get("/get-flow", async (req, res) => {
+	try {
+		const flowData = await fs.readFile(flowsFilePath, "utf-8");
+		res.json(JSON.parse(flowData));
+	} catch (error) {
+		console.error("Error reading flow:", error);
+		res.status(500).json({ error: "Failed to read flow" });
 	}
 });
 

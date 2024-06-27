@@ -8,7 +8,6 @@ import ReactFlow, {
 	Background,
 	NodeTypes,
 	EdgeTypes,
-	OnConnect,
 	ReactFlowProvider,
 	useNodesState,
 	useEdgesState,
@@ -74,6 +73,7 @@ const initialNodes: CustomNode[] = [
 const initialEdges: Edge[] = [];
 
 function App() {
+	const [flowId, setFlowId] = useState<string>("default"); // フローIDを追加
 	const reactFlowWrapper = useRef<HTMLDivElement>(null);
 	const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(
 		initialNodes as any
@@ -95,20 +95,18 @@ function App() {
 		}
 	}, [darkMode]);
 
-	const onConnect: OnConnect = useCallback(
+	const onConnect = useCallback(
 		(params: Connection) => {
 			const sourceNode = nodes.find((node) => node.id === params.source);
 			const targetNode = nodes.find((node) => node.id === params.target);
 
 			if (sourceNode && targetNode) {
+				// Allow connections between any nodes except:
+				// 1. Inject node as a target
+				// 2. Self-connection
 				if (
-					(sourceNode.type === "inject" &&
-						(targetNode.type === "get" ||
-							targetNode.type === "post")) ||
-					(sourceNode.type === "get" && targetNode.type === "post") ||
-					(sourceNode.type === "post" &&
-						(targetNode.type === "get" ||
-							targetNode.type === "post"))
+					targetNode.type !== "inject" &&
+					sourceNode.id !== targetNode.id
 				) {
 					setEdges((eds) =>
 						addEdge({ ...params, type: "custom" }, eds)
@@ -118,7 +116,7 @@ function App() {
 				}
 			}
 		},
-		[nodes]
+		[nodes, setEdges, setError]
 	);
 
 	const onNodeExecute = useCallback(
@@ -185,22 +183,6 @@ function App() {
 			}
 		},
 		[nodes]
-	);
-
-	const onSaveNodeConfig = useCallback(
-		(updatedData: any) => {
-			setNodes((prevNodes) =>
-				prevNodes.map((node) =>
-					node.id === selectedNode?.id
-						? { ...node, data: updatedData }
-						: node
-				)
-			);
-			setSelectedNode(null);
-			setConfigSaved(true);
-			setTimeout(() => setConfigSaved(false), 3000);
-		},
-		[selectedNode]
 	);
 
 	const onDragStart = (event: React.DragEvent, nodeType: string) => {
@@ -274,10 +256,82 @@ function App() {
 		},
 	}));
 
+	// フローを保存する関数
+	const saveFlow = useCallback(async () => {
+		try {
+			const flowData = {
+				id: flowId,
+				nodes,
+				edges,
+			};
+			const response = await fetch("http://localhost:3000/save-flow", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(flowData),
+			});
+			if (!response.ok) {
+				throw new Error("Failed to save flow");
+			}
+			console.log("Flow saved successfully");
+		} catch (error) {
+			console.error("Error saving flow:", error);
+			setError("Failed to save flow");
+		}
+	}, [flowId, nodes, edges]);
+
+	// フローを読み込む関数
+	const loadFlow = useCallback(async () => {
+		try {
+			const response = await fetch("http://localhost:3000/get-flow");
+			if (!response.ok) {
+				throw new Error("Failed to load flow");
+			}
+			const flowData = await response.json();
+			setFlowId(flowData.id);
+			setNodes(flowData.nodes);
+			setEdges(flowData.edges);
+			console.log("Flow loaded successfully");
+		} catch (error) {
+			console.error("Error loading flow:", error);
+			setError("Failed to load flow");
+		}
+	}, [setNodes, setEdges]);
+
+	// コンポーネントがマウントされたときにフローを読み込む
+	useEffect(() => {
+		loadFlow();
+	}, [loadFlow]);
+
+	// ノード設定を保存する関数を更新
+	const onSaveNodeConfig = useCallback(
+		(updatedData: any) => {
+			setNodes((prevNodes) =>
+				prevNodes.map((node) =>
+					node.id === selectedNode?.id
+						? { ...node, data: updatedData }
+						: node
+				)
+			);
+			setSelectedNode(null);
+			setConfigSaved(true);
+			setTimeout(() => setConfigSaved(false), 3000);
+			saveFlow();
+		},
+		[selectedNode, setNodes, saveFlow]
+	);
+
 	return (
 		<div
 			className={`w-screen h-screen flex flex-col ${darkMode ? "dark" : ""}`}
 		>
+			<button
+				onClick={saveFlow}
+				className="absolute top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded"
+			>
+				Save Flow
+			</button>
 			<header className="bg-gray-800 dark:bg-gray-900 text-white p-4 flex justify-between items-center">
 				<h1 className="text-2xl font-bold">Workflow Builder</h1>
 				<button
