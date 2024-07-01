@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaHome, FaBars, FaCode } from "react-icons/fa";
+import { FaHome, FaBars, FaCode, FaPlus } from "react-icons/fa";
 
 const Sidebar: React.FC = () => {
 	const [isExpanded, setIsExpanded] = useState(true);
@@ -34,10 +34,17 @@ const Sidebar: React.FC = () => {
 			</div>
 			<div
 				className="p-4 flex items-center hover:bg-gray-700 cursor-pointer"
-				onClick={() => navigate("/flow-editor")}
+				onClick={() => navigate("/pipelines")}
 			>
 				<FaCode size={20} />
-				{isExpanded && <span className="ml-3">ワークフロー</span>}
+				{isExpanded && <span className="ml-3">パイプライン</span>}
+			</div>
+			<div
+				className="p-4 flex items-center hover:bg-gray-700 cursor-pointer"
+				onClick={() => navigate("/create-workflow")}
+			>
+				<FaPlus size={20} />
+				{isExpanded && <span className="ml-3">新規ワークフロー</span>}
 			</div>
 		</div>
 	);

@@ -3,16 +3,33 @@ import cors from "cors";
 import { workflowQueue, initializeWorker, processNode } from "./queue";
 import fs from "fs/promises";
 import path from "path";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import { workflowRoutes } from "./routes/workflowRoutes";
+import dotenv from "dotenv";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+dotenv.config();
+
 app.use(cors());
 app.use(express.json());
+
+// Mongoose connection with authentication
+const MONGODB_URI =
+	"mongodb://root:example@localhost:27017/workflow_db?authSource=admin";
+
+mongoose
+	.connect(MONGODB_URI)
+	.then(() => console.log("Connected to MongoDB"))
+	.catch((err) => console.error("Error connecting to MongoDB:", err));
 
 const flowsFilePath = path.join(__dirname, "../flow/flows.json");
 
 initializeWorker();
+
+app.use("/api/workflow", workflowRoutes);
 
 // フローファイルが存在しない場合に初期化する関数
 async function initializeFlowFile() {
@@ -94,6 +111,8 @@ app.get("/get-flow", async (req, res) => {
 		res.status(500).json({ error: "Failed to read flow" });
 	}
 });
+
+app.use(bodyParser.json());
 
 app.listen(port, () => {
 	console.log(`Backend server running at http://localhost:${port}`);
